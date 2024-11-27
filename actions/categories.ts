@@ -14,8 +14,8 @@ export const getCategoriesWithProducts =
   async (): Promise<CategoriesWithProductsResponse> => {
     const supabase = createClient();
     const { data, error } = await (await supabase)
-      .from("")
-      .select("* , products:product(*)")
+      .from("category")
+      .select("* , products:products(*)")
       .returns<CategoriesWithProductsResponse>();
 
     if (error) throw new Error(`Error fetching categories: ${error.message}`);
@@ -48,7 +48,9 @@ export const imageUploadHandler = async (formData: FormData) => {
 
     const {
       data: { publicUrl },
-    } = await (await supabase).storage.from("app-images").getPublicUrl(data.path);
+    } = await (await supabase).storage
+      .from("app-images")
+      .getPublicUrl(data.path);
 
     return publicUrl;
   } catch (error) {
@@ -83,7 +85,7 @@ export const updateCategory = async ({
   slug,
 }: UpdateCategorySchema) => {
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data, error } = await (await supabase)
     .from("category")
     .update({ name, imageUrl })
     .match({ slug });
@@ -97,7 +99,10 @@ export const updateCategory = async ({
 
 export const deleteCategory = async (id: number) => {
   const supabase = createClient();
-  const { error } = await supabase.from("category").delete().match({ id });
+  const { error } = await (await supabase)
+    .from("category")
+    .delete()
+    .match({ id });
 
   if (error) throw new Error(`Error deleting category: ${error.message}`);
 
@@ -106,18 +111,18 @@ export const deleteCategory = async (id: number) => {
 
 export const getCategoryData = async () => {
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data, error } = await (await supabase)
     .from("category")
-    .select("name, products:product(id)");
+    .select("name, products:products(id)");
 
   if (error) throw new Error(`Error fetching category data: ${error.message}`);
 
-  const categoryData = data.map(
-    (category: { name: string; products: { id: number }[] }) => ({
-      name: category.name,
-      products: category.products.length,
-    })
-  );
+  // const categoryData = data.map(
+  //   (category: { name: string; products: { id: number }[] }) => ({
+  //     name: category.name,
+  //     products: category.products.length,
+  //   })
+  // );
 
-  return categoryData;
+  return data;
 };

@@ -6,8 +6,8 @@ import { sendNotification } from "./notifications";
 
 export const getOrdersWithProducts = async () => {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from("order")
+  const { data, error } = await (await supabase)
+    .from("orders")
     .select("*, order_items:order_item(*, product(*)), user(*)")
     .order("created_at", { ascending: false });
 
@@ -18,8 +18,7 @@ export const getOrdersWithProducts = async () => {
 
 export const updateOrderStatus = async (orderId: number, status: string) => {
   const supabase = createClient();
-  const { error } = await (await supabase)
-    .from("order")
+  const { error } =await (await supabase).from("orders")
     .update({ status })
     .eq("id", orderId);
 
@@ -27,7 +26,7 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
 
   const {
     data: { session },
-  } = await supabase.auth.getSession();
+  } = await (await supabase).auth.getSession();
 
   const userId = session?.user.id!;
 
@@ -38,7 +37,7 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
 
 export const getMonthlyOrders = async () => {
   const supabase = createClient();
-  const { data, error } = await supabase.from("order").select("created_at");
+  const { data, error } = await (await supabase).from("orders").select("created_at");
 
   if (error) throw new Error(error.message);
 
