@@ -48,9 +48,9 @@ export const imageUploadHandler = async (formData: FormData) => {
 
     const {
       data: { publicUrl },
-    } = await (await supabase).storage
-      .from("app-images")
-      .getPublicUrl(data.path);
+    } = (await supabase).storage
+        .from("app-images")
+        .getPublicUrl(data.path);
 
     return publicUrl;
   } catch (error) {
@@ -111,18 +111,18 @@ export const deleteCategory = async (id: number) => {
 
 export const getCategoryData = async () => {
   const supabase = createClient();
-  const { data, error } = await (await supabase)
+  const { data, error } = await supabase
     .from("category")
     .select("name, products:products(id)");
 
   if (error) throw new Error(`Error fetching category data: ${error.message}`);
 
-  // const categoryData = data.map(
-  //   (category: { name: string; products: { id: number }[] }) => ({
-  //     name: category.name,
-  //     products: category.products.length,
-  //   })
-  // );
+  const categoryData = data.map(
+    (category: { name: string; products: { id: number }[] }) => ({
+      name: category.name,
+      products: category.products.length,
+    })
+  );
 
   return data;
 };
